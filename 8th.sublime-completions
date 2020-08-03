@@ -1,0 +1,17 @@
+{
+	"scope": "source.8th",
+
+	"completions":
+	[
+		{ "trigger": "again", "contents": "begin\n\t$0\nagain\n"},
+		{ "trigger": "begin", "contents": "begin\n\t$0\nuntil\n"},
+		{ "trigger": "case", "contents": "case\n\t$0\nendcase\n"},
+		{ "trigger": "doloop", "contents": "do\n\t$0\nloop\n"},
+		{ "trigger": "fun", "contents": ": $1 ( $2-- )\n\t$0\n;\n"},
+		{ "trigger": "ifthen", "contents": "if\n\t$0\nthen\n"},
+		{ "trigger": "ifelse", "contents": "if\n\t$1\nelse\n\t$2\nthen\n"},
+		{ "trigger": "locals", "contents": "locals| $0 |\n"},
+		{ "trigger": "of", "contents": "of\n\t$0\nendof\n"},
+		{ "trigger": "while", "contents": "begin\n\t$1\nwhile\n\t$2\nrepeat\n"},
+	]
+}
