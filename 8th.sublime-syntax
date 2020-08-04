@@ -110,7 +110,7 @@ contexts:
     - match: (?<=^|\s)(?i:([-=@!\+\*/]|>[sn]|and|xor|or|not|invert|negate|min|max|mod|s:[@=!\*\+\-/]|0[<>=]|0?<>|1[\+-]))(?=\s)
       scope: operator.8th
 
-    - match: '(?<=^|\s)((: +.*?)|[\(\)])(?=\s)'
+    - match: '(?<=^)\s*((: +.*?)|[\(\)])(?=\s)'
       scope: green.function.8th
 
     - match: (?<=^|\s)(;|i;|\'|\(:\)|func:)(?=\s)
