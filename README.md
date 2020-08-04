@@ -4,7 +4,7 @@
 Syntax File
 ===========
 
-* I use a custom theme with extended colors and scopes such as peach and orange. These will show as the default text color if not defined for you.
+* I use a custom theme with extended colors and scopes such as peach and orange. These will show as the default text color if not defined for you.  Use ctrl+shift+p or ctrl+alt+shift+p to see what the scope of the text under the carot is.
 
 * It's easy to edit 8th.sublime-syntax and just remove these values:  For example _io.keywords.8th_ would become _keywords.8th_
 

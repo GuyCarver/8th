@@ -52,6 +52,14 @@ contexts:
         - match: '(.*")\s'
           pop: true
 
+    - match: (?<=^|\s)(\{)(?=\s)
+      scope: map.8th
+      push: mapdef
+
+    - match: (?<=^|\s)(\[)(?=\s)
+      scope: array.8th
+      push: arraydef
+
     - match: (?<=^|\s)(DEFER:|I:)\s*\S*(?=\s)
       scope: string.unquoted.8th
 
@@ -111,7 +119,7 @@ contexts:
         2|join|len|map\+?|mean|mean\&variance|new|op!|open|pop|push|qsort|randeach|reduce\+?|
         3|remove|rev|shift|suffle|slice\+?|slide|smear|sort|union|when\!?|x-each|xchg|zip)(?=\s)
       comment: array namespace
-      scope: class.keyword.array.8th
+      scope: storage.keyword.array.8th
 
     - match: (?<=^|\s)(app:)(8thdir|asset|atrun|(?>base|data|sub)dir|current|exename|isgui|lowmem|main|
         1|oncrash|opts[!@]|orientation!?|pic|raise|restart|resumed|signal|
@@ -123,7 +131,7 @@ contexts:
         1|compress|conv|each!?|each-slice|expand|fill|getb|hex>|len|mem>|move|mpack-ignore|
         2|mpack>|n\+|new|op|rev|search|shmem|slice|splice|ungetb|writable|xor)(?=\s)
       comment: buffer namespace
-      scope: class.keyword.buffer.8th
+      scope: storage.keyword.buffer.8th
 
     - match: (?<=^|\s)(\.|cr)(?=\s)
       scope: io.keyword.8th
@@ -170,7 +178,7 @@ contexts:
     - match: (?<=^|\s)(m:)([!+]\??|-|@[\?@]?|\[\]!|_[!@]|bitmap|clear|data|each|exists\?|
         1|filter|iter(?>-all)?|keys|len|map|new|op!|open|slice|vals|xchg|zip)(?=\s)
       comment: map namespace
-      scope: class.keyword.map.8th
+      scope: storage.keyword.map.8th
 
     - match: (?<=^|\s)(n:)([!-/<=>\^E]|\*/?|\+!?|/mod|1[+-]|abs|acos|asin|atan[2]?|band|
         z|between|bic|BIG(?>E|PI)|bin[tv]|bnot|bor|bxor|cast|ceil|clamp|cmp|
@@ -195,7 +203,7 @@ contexts:
 
     - match: (?<=^|\s)(q:)(\+|clear|len|new|notify|overwrite|peek|pick|pop|push|remove|shift|size|slide|throwing|wait)(?=\s)
       comment: queue namespace
-      scope: class.keyword.queue.8th
+      scope: storage.keyword.queue.8th
 
     - match: (?<=^|\s)(s:)(/scripts|<\+|=ic|>base64|append|base64>|clear|
         1|cmpi?|compress|days!|each(?>!|line)|escape|expand|fill|fmt|gershayim|
@@ -229,3 +237,18 @@ contexts:
 
     - match: (?<=^|\s)(?i:(constant|var,?|locals:))(?=\s)
       scope: storage.type.8th
+
+  mapdef:
+    - meta_scope: class.map.contents.8th
+    - match: '(?<=^|\s)(.*?):\s+(.*?)\s*(?=\s)'
+      captures:
+        1: string.map.contents.key.8th
+        2: pink.map.contents.value.8th
+    - match: (?<=^|\s)(\})(?=\s)
+      pop: true
+
+  arraydef:
+    - meta_scope: class.array.contents.8th
+    - match: (?<=^|\s)(\])(?=\s)
+      pop: true
+
