@@ -7,9 +7,25 @@ file_extensions:
   - "8th"
 scope: source.8th
 
+variables:
+  operators: '[@=!\*\+\-/]'
+  mathoperators: '({{operators}}|>[sn]|and|xor|or|not|invert|negate|min|max|mod|1[\+-])'
+  preproc: '(#if|#else|#then|dbg:stop|dbg:prompt)'
+  globalstack: '(2?dup|2?drop|r?swap|2?over|nip|tuck|-?rot|pick|roll|depth|dstack|fourth|third)'
+  globalinc: '(lib(?>bin)?|needs|requires|with:)\s'
+  globalcompiletime: '(p:|compile\??|i:|literal|recurse)'
+  globalimmed: '(?<=^|\s)(0;|if;?|;;;?|else|''|;?then|repeat|again|until!?|while!?|caseof|when|loop-?|times|ahead|break)'
+  globalkeyword: '(curry:?|sleep|\(code\)|\(defer\)|\(dump\)|\(get[cs]\)|\(interp\)|\(log\)|\(stat\)|[-\+]hook|[-\+]listener|[-\+]ref|ref@|-?Inf\??|\.hook|\.needs|\.[#rs]|\.stats|\.ver|\.with|>clip|>json|>kind|\?:|appname|apropos|argc|args|assert|base|bits|build\?|buildver\?|bye|chdir|clip>|clone|clone-shallow|cold|compat-level|conflict|const|counting-allocations|curlang|decimal|defer:|deferred:|deg>rad|die|dump|e#|error\?|eval[!0]?|execnull|expect|extra[!@]|fnv|free|get[cs]|getcwd|getenv|handler|header|help|hex|jcall|jclass|jmethod|k32|last|listener@|lock(?>-to|ed\?)?|mark|memfree|mobile\?|name>(?>os|sem)|new|next-arg|noop|ns[:\?]|ns>l?s|null;?|off|on|onexit|only|op!|os(?>-names|>long-name|>name)?|pack|parse(?>-csv|ch|ln|ws)?|pool-clear(?>-all)?|prior|private|prompt|public|put[cs]|putslim|rad>deg|recurse-stack|reg[@!]|regbin@|remaining-args|rop!|s>ns|scriptdir|scriptfile|set(?>-wipe|env|jmp)|settings[!@]|sh\$?|space|step|throw(?>null)?|unlock|unpack|xchg)'
+  globalrand: '(rand-(jit|jsf|native|normal|pcg|pct-seed|range|select)|randbuf-pcg|random)'
+  globalrstack: '((?<=^|\s)(>r|r[>@!])|(r?(?>swap|rusage|stack|op!)))'
+  globalsem: '(sem-(post|rm|wait\??)|sem(?>>name)?)'
+  globaljson: '(json-(8th|nesting|pretty|throw)|json[>@])'
+  vstringns: '(/scripts|<\+|=ic|>base64|append|base64>|clear|cmpi?|compress|days!|each(?>!|line)|escape|expand|fill|fmt|gershayim|globmatch|hexupr|insert|intl!?|lang|lc|len|months!|new|reduce|replace!?|rev|[lrt]sub|[rl]?trim|script\?|r?search|size|slice|str(?>fmap|fmt)|text-wrap|uc(?>s2>)?|utf8\?|zt)'
+  vnumbersns: '([!-/<=>\^E]|\*/?|\+!?|/mod|1[+-]|abs|acos|asin|atan[2]?|band|between|bic|BIG(?>E|PI)|bin[tv]|bnot|bor|bxor|cast|ceil|clamp|cmp|comb|cosd?|exp(?>m1|mod)?|b?float|floor|frac|gcd|int|invmod|kind\?|lcm|ln|ln1p|max|median|min|f?mod|neg|odd\?|perm|PI|prime\?|quantize!?|r\+|range|rot32[lr]|round2?|rounding|running-variance(?>-finalize)?|sgn|sh[lr]|sind?|sqrt?|tand?|trunc|~=)'
+
 contexts:
   main:
-    - match: (?i:(?<=^|\s)(true|false)(?=\s))
+    - match: '(?i:(?<=^|\s)(true|false)(?=\s))'
       scope: constant.language.8th
     - match: '(?<=^|\s)([-+]?(0x|0X|\$)[0-9a-fA-F]*)(?=\s)'
       scope: constant.numeric.hex.8th
@@ -33,10 +49,10 @@ contexts:
       scope: constant.numeric.ascii.8th
     - match: '(?<=^|\s)(([&^]\S)|(("|'')\S("|'')))(?=\s)'
       scope: constant.character.8th
-    - match: (?<=^|\s)(-- .*$)
+    - match: '(?<=^|\s)(-- .*$)'
       comment: line comments for 8th
       scope: comment.line.double-dash.8th
-    - match: (?<=^|\s)(\\ .*$)
+    - match: '(?<=^|\s)(\\ .*$)'
       comment: ANSI line comment
       scope: comment.line.backslash.8th
     - match: '(?<=^|\s)(\(\*)(?=\s)'
@@ -52,191 +68,178 @@ contexts:
         - match: '(.*")\s'
           pop: true
 
-    - match: (?<=^|\s)(\{)(?=\s)
+    - match: '(?<=^|\s)((constant|var,?))\s+'
+      scope: storage.type.8th
+      push:
+        - meta_scope: string.type.8th
+        - match: '(\w+)(?=\s)'
+          pop: true
+
+    - match: '(?<=^|\s)(;with)(?=\s)'
+      scope: include.globalns.word.8th
+
+    - match: '{{globalinc}}'
+      scope: include.globalns.word.8th
+      push: includestring
+
+    - match: '(?<=^|\s)(\{)(?=\s)'
       scope: map.8th
       push: mapdef
 
-    - match: (?<=^|\s)(\[)(?=\s)
+    - match: '(?<=^|\s)(\[)(?=\s)'
       scope: array.8th
       push: arraydef
 
-    - match: (?<=^|\s)(DEFER:|I:)\s*\S*(?=\s)
+    - match: '(?<=^|\s)(DEFER:|I:)\s*\S*(?=\s)'
       scope: string.unquoted.8th
 
-    - match: (quote (.).*\2)
+    - match: '(quote (.).*\2)'
       scope: string.unquoted.8th
 
-    - match: (G:)?((lib(?>bin)?|needs|requires|with:)\s*[\w/\.]*|;with)(?=\s)
-      scope: include.8th
+    - match: '(?<=^|\s){{globalimmed}}(?=\s)'
+      scope: control.globalns.word.immediate.8th
+
+    - match: '(?<=^|\s){{globalrand}}(?=\s)'
+      scope: keyword.globalns.random.word.8th
+
+    - match: '(?<=^|\s){{globalsem}}(?=\s)'
+      scope: keyword.globalns.sem.word.8th
+
+    - match: '(?<=^|\s){{globaljson}}(?=\s)'
+      scope: keyword.globalns.json.word.8th
+
+    - match: '(?<=^|\s){{globalkeyword}}(?=\s)'
+      scope: keyword.globalns.8th
+
+    - match: '(?<=^|\s){{globalstack}}(?=\s)'
+      scope: peach.globalns.stack.immediate.8th
+
+    - match: '(?<=^|\s){{globalrstack}}(?=\s)'
+      scope: peach.globalns.rstack.immediate.8th
+
+    - match: '(?<=^|\s){{globalcompiletime}}(?=\s)'
+      scope: orange.globalns.immediate.other.8th
+
+    - match: '(?<=^|\s){{mathoperators}}(?=\s)'
+      scope: operator.8th
 
     - match: '(?<=^|\s)#! .*+'
       scope: preprocessor.linux.run.8th
 
-    - match: (?<=^|\s)(#if|#else|#then|dbg:stop|dbg:prompt)(?=\s)
+    - match: '(?<=^|\s){{preproc}}(?=\s)'
       scope: preprocessor.8th
 
-    - match: (?<=^|\s)(0;|if;?|;;;?|else|;?then|repeat|again|until!?|while!?|
-        1|caseof|when|loop|loop-|times|G:case:|G:of:|G:default:|;then|ahead|break)(?=\s)
-      scope: control.keyword.immediate.8th
-
-    - match: (?<=^|\s)(null\?|array\?|string\?|break\?|compiling?|container\?|isa\?|map\?|number\?|same\?)(?=\s)
+    - match: '(?<=^|\s)(null\?|array\?|string\?|break\?|compiling?|container\?|isa\?|map\?|number\?|same\?)(?=\s)'
       scope: keyword.compare.8th
-
-    - match: (?<=^|\s)(curry:?|sleep|\(code\)|\(defer\)|\(dump\)|\(get[cs]\)|
-        1|\(interp\)|\(log\)|\(stat\)|[-\+]hook|[-\+]listener|[-\+]ref|ref@|-?Inf\??|
-        2|\.hook|\.needs|\.[#rs]|\.stats|\.ver|\.with|>clip|>json|>kind|\?:|appname|
-        3|apropos|argc|args|assert|base|bits|build\?|buildver\?|bye|chdir|clip>|clone|
-        4|clone-shallow|cold|compat-level|conflict|const|counting-allocations|curlang|decimal|
-        5|defer:|deferred:|deg>rad|die|dump|e#|error\?|eval[!0]?|execnull|expect|extra[!@]|fnv|
-        6|free|get[cs]|getcwd|getenv|handler|header|help|hex|jcall|jclass|jmethod|k32|last|
-        7|listener@|lock(?>-to|ed\?)?|mark|memfree|mobile\?|name>(?>os|sem)|new|next-arg|noop|
-        8|ns[:\?]|ns>l?s|null;?|off|on|onexit|only|op!|os(?>-names|>long-name|>name)?|pack|parse(?>-csv|ch|ln|ws)?|
-        9|pool-clear(?>-all)?|prior|private|prompt|public|put[cs]|putslim|rad>deg|recurse-stack|
-        A|reg[@!]|regbin@|remaining-args|rop!|s>ns|scriptdir|scriptfile|set(?>-wipe|env|jmp)|
-        B|settings[!@]|sh\$?|space|step|throw(?>null)?|unlock|unpack|xchg)(?=\s)
-      scope: keyword.global.8th
-
-    - match: (?<=^|\s)(2?dup|2?drop|r?swap|2?over|nip|tuck|-?rot|pick|roll|depth|dstack|fourth|third)(?=\s)
-      scope: peach.keyword.stack.immediate.8th
-
-    - match: ((?<=^|\s)(>r|r[>@!])|((r:)(pick|swap))(?=\s))
-      scope: peach.keyword.rstack.immediate.8th
-
-    - match: (?<=^|\s)(p:|compile\??|i:|literal|recurse)(?=\s)
-      scope: orange.keyword.immediate.other.8th
-
-    - match: (?<=^|\s)(?i:([-=@!\+\*/]|>[sn]|and|xor|or|not|invert|negate|min|max|mod|s:[@=!\*\+\-/]|0[<>=]|0?<>|1[\+-]))(?=\s)
-      scope: operator.8th
 
     - match: '(?<=^)\s*((: +.*?)|[\(\)])(?=\s)'
       scope: green.function.8th
 
-    - match: (?<=^|\s)(;|i;|\'|\(:\)|func:)(?=\s)
+    - match: '(?<=^|\s)(;|i;|\(:\)|func:)(?=\s)'
       scope: green.function.8th
 
-    - match: (?<=^|\s)(a:)([!\+=xy]|-|2each|2map|2map\+|2map=|>map|@@?|_@|bsearch|centroid|clear|close|diff|dot|
-        1|each!?|each-slice|exists\?|filter|generate|group|indexof|insert|intersect|
-        2|join|len|map\+?|mean|mean\&variance|new|op!|open|pop|push|qsort|randeach|reduce\+?|
-        3|remove|rev|shift|suffle|slice\+?|slide|smear|sort|union|when\!?|x-each|xchg|zip)(?=\s)
+    - match: '(?<=^|\s)(a:)(?=\S)'
       comment: array namespace
-      scope: storage.keyword.array.8th
+      scope: arrayns.8th
+      push: arrayns
 
-    - match: (?<=^|\s)(app:)(8thdir|asset|atrun|(?>base|data|sub)dir|current|exename|isgui|lowmem|main|
-        1|oncrash|opts[!@]|orientation!?|pic|raise|restart|resumed|signal|
-        2|standalone|suspended|sysquit|terminated|trap)(?=\s)
+    - match: '(?<=^|\s)(app:)(?=\S)'
       comment: application namespace
-      scope: orange.keyword.application.8th
+      scope: appns.8th
+      push: appns
 
-    - match: (?<=^|\s)(b:)([!\+/=@]|1[+-]|>base64|>hex|>mpack|append|base64>|bit[!@]|clear|
-        1|compress|conv|each!?|each-slice|expand|fill|getb|hex>|len|mem>|move|mpack-ignore|
-        2|mpack>|n\+|new|op|rev|search|shmem|slice|splice|ungetb|writable|xor)(?=\s)
+    - match: '(?<=^|\s)(b:)(?=\S)'
       comment: buffer namespace
-      scope: storage.keyword.buffer.8th
+      scope: storage.bufferns.8th
+      push: bufferns
 
-    - match: (?<=^|\s)(\.|cr)(?=\s)
+    - match: '(?<=^|\s)(\.|cr)(?=\s)'
       scope: io.keyword.8th
 
-    - match: (?<=^|\s)(f:)(abspath|append|associate|atime|canwrite\?|chmod|close|copy|copydir|
-        1|create|ctime|dir\?|dname|eachbuf|eachline|enssep|eof\?|exists\?|flush|fname|
-        2|get(?>[bc]|line|mod)|glob(?>-nocase)?|homedir|include|launch|link[\?>]?|
-        3|mkdir|mmap(?>-range\??)?|mtime|mv|open(?>-ro)?|print|read\??|
-        4|relpath|rglob|rm(?>dir)?|seek|sep|size|slurp|sparse\?|stderr|stdin|stdout|
-        5|tell|times|trash|truncate|unget[bc]|unzip(?>-entry)?|watch|write[n]?|
-        6|zip(?>[\+@]|entry|new|open|save))(?=\s)
+    - match: '(?<=^|\s)(f:)(?=\S)'
       comment: file namespace
-      scope: io.keyword.file.8th
+      scope: io.filens.8th
+      push: filens
 
-    - match: (?<=^|\s)(G:)(-inf\?|[34n]drop|actor:|bi|c/does|2?dip|ENUM:|expect|FLAG:|inf\?|
-        1|items_used|keep|name>os|NaN\?|next-arg|os>long-name|poke|(?>process|remaining)-args|
-        2|rpick|rroll|SED-CHECK|setting!|settings(?>[@!]\[\]|@\??|!)|sleep-until|struct:|tlog|tri|words/?|)(?=\s)
+    - match: '(?<=^|\s)(G:)(?=\S)'
       comment: global namespace
-      scope: keyword.global.8th
+      scope: keyword.globalns.8th
+      push: globalns
 
-    - match: (?<=^|\s)(G:)(rand-(jit|jsf|native|normal|pcg|pct-seed|range|select)|randbuf-pcg|random)(?=\s)
-      scope: keyword.global.random.8th
-
-    - match: (?<=^|\s)(G:)(json-(8th|nesting|pretty|throw)|json[>@])(?=\s)
-      scope: keyword.global.json.8th
-
-    - match: (?<=^|\s)(G:)(sem-(post|rm|wait\??)|sem|sem>name)(?=\s)
-      scope: keyword.global.sem.8th
-
-    - match: (?<=^|\s)(h:)(\+|clear|len|max!|new|peek|pop|push|unique)(?=\s)
+    - match: '(?<=^|\s)(h:)(?=\S)'
       comment: heap namespace
-      scope: storage.keyword.heap.8th
+      scope: storage.heapns.8th
+      push: heapns
 
-    - match: (?<=^|\s)(hw:)(arm\?|camera\??|camera-fmt|camera-img|cpu\?|device\?|displays\?|
-        1|displaysize\?|finger-(?>match|support)|gpio(?>[!@]|-mmap)?|i2c(?>[@!]reg|[@!])?|
-        2|is(?>round|watch)\?|mac\?|mem\?|model\?|poll|sensor|start|stop|uid\?)(?=\s)
+    - match: '(?<=^|\s)(hw:)(?=\S)'
       comment: hardware namespace
-      scope: support.keyword.hardware.8th
+      scope: support.hardwarens.8th
+      push: hardwarens
 
-    - match: (?<=^|\s)(imap:)(fetch-(?>full|uid-mail)|login|new|select-inbox|>map)(?=\s)
+    - match: '(?<=^|\s)(imap:)(?=\S)'
       comment: imap namespace
-      scope: io.keyword.imap.8th
+      scope: io.imapns.8th
+      push: imapns
 
-    - match: (?<=^|\s)(m:)([!+]\??|-|@[\?@]?|\[\]!|_[!@]|bitmap|clear|data|each|exists\?|
-        1|filter|iter(?>-all)?|keys|len|map|new|op!|open|slice|vals|xchg|zip)(?=\s)
+    - match: '(?<=^|\s)(m:)(?=\S)'
       comment: map namespace
-      scope: storage.keyword.map.8th
+      scope: storage.mapns.8th
+      push: mapns
 
-    - match: (?<=^|\s)(n:)([!-/<=>\^E]|\*/?|\+!?|/mod|1[+-]|abs|acos|asin|atan[2]?|band|
-        z|between|bic|BIG(?>E|PI)|bin[tv]|bnot|bor|bxor|cast|ceil|clamp|cmp|
-        x|comb|cosd?|exp(?>m1|mod)?|b?float|floor|frac|gcd|int|invmod|
-        y|kind\?|lcm|ln|ln1p|max|median|min|f?mod|neg|odd\?|perm|PI|prime\?|quantize!?|
-        w|r\+|range|rot32[lr]|round2?|rounding|running-variance(?>-finalize)?|
-        v|sgn|sh[lr]|sind?|sqrt?|tand?|trunc|~=)(?=\s)
+    - match: '(?<=^|\s)(n:)(?=\S)'
       comment: number namespace
-      scope: cyan.keyword.queue.8th
+      scope: cyan.numberns.8th
+      push: numberns
 
-    - match: (?<=^|\s)(os:)(devname|env|lang|region)(?=\s)
+    - match: '(?<=^|\s)(os:)(?=\S)'
       comment: os namespace
-      scope: support.keyword.os.8th
+      scope: support.osns.8th
+      push: osns
 
-    - match: (?<=^|\s)(ptr:)(cast|len|pack|unpack(?>_orig)?)(?=\s)
+    - match: '(?<=^|\s)(ptr:)(?=\S)'
       comment: pointer namespace
-      scope: storage.keyword.queue.8th
+      scope: storage.pointerns.8th
+      push: pointerns
 
-    - match: (?<=^|\s)(pubsub:)(publish|qsize|subscribe)(?=\s)
+    - match: '(?<=^|\s)(pubsub:)(?=\S)'
       comment: pubsub namespace
-      scope: io.keyword.pubsub.8th
+      scope: io.pubsubns.8th
+      push: pubsubns
 
-    - match: (?<=^|\s)(q:)(\+|clear|len|new|notify|overwrite|peek|pick|pop|push|remove|shift|size|slide|throwing|wait)(?=\s)
+    - match: '(?<=^|\s)(q:)(?=\S)'
       comment: queue namespace
-      scope: storage.keyword.queue.8th
+      scope: storage.queuens.8th
+      push: queuens
 
-    - match: (?<=^|\s)(s:)(/scripts|<\+|=ic|>base64|append|base64>|clear|
-        1|cmpi?|compress|days!|each(?>!|line)|escape|expand|fill|fmt|gershayim|
-        2|globmatch|hexupr|insert|intl!?|lang|lc|len|months!|new|reduce|replace!?|rev|
-        3|[lrt]sub|[rl]?trim|script\?|r?search|size|slice|str(?>fmap|fmt)|text-wrap|
-        4|uc(?>s2>)?|utf8\?|zt)(?=\s)
+    - match: '(?<=^|\s)(s:)(?=\S)'
       comment: string namespace
-      scope: storage.keyword.string.8th
+      scope: string.stringns.8th
+      push: stringns
 
-    - match: (?<=^|\s)(st:)([\+\.]|clear|len|ndrop|new|op!|peek|pick|pop|push|roll|shift|size|slide|swap|throwing)(?=\s)
+    - match: '(?<=^|\s)(st:)(?=\S)'
       comment: stack namespace
-      scope: peach.keyword.stack.8th
+      scope: peach:stackns.8th
+      push: stackns
 
-    - match: (?<=^|\s)(t:)([@!]|by-name|cirtask|def-(?>queue|stack)|done\?|err[!\?]|
-        1|errno\?|getq|guitask|handler|kill|list|main|max-exceptions|name[!@]|notify|
-        2|parent|pop|priority|push|q-(?>notify|wait)|qlen|result|set-affinity|setq|
-        3|task(?>-n|-stop)?|wait)(?=\s)
+    - match: '(?<=^|\s)(t:)(?=\S)'
       comment: task namespace
-      scope: gray.keyword.task.8th
+      scope: gray.taskns.8th
+      push: taskns
 
-    - match: (?<=^|\s)(w:)([!@]|\(is\)|alias:|cb|deprecate|exec\??|ffifail|find|forget|is|name|undo)(?=\s)
+    - match: '(?<=^|\s)(w:)(?=\S)'
       comment: word namespace
-      scope: define.word.8th
+      scope: define.wordns.8th
+      push: wordns
 
-    - match: (?<=^|\s)(/.*/)(?=\s)
-      comment: regex namespace
+    - match: '(?<=^|\s)(/)'
+      comment: regex def
       scope: regex.exp.8th
+      push: regexdef
 
-    - match: (?<=^|\s)(r:)(\+?\+?match|\+?/|@|len|new|rx|str)(?=\s)
-      scope: regex.8th
-
-    - match: (?<=^|\s)(?i:(constant|var,?|locals:))(?=\s)
-      scope: storage.type.8th
+    - match: '(?<=^|\s)(r:)(?=\S)'
+      comment: regex namespace
+      scope: regex.regexns.8th
+      push: regexns
 
   mapdef:
     - meta_scope: class.map.contents.8th
@@ -244,11 +247,167 @@ contexts:
       captures:
         1: string.map.contents.key.8th
         2: pink.map.contents.value.8th
-    - match: (?<=^|\s)(\})(?=\s)
+    - match: '(?<=^|\s)(\})(?=\s)'
       pop: true
 
   arraydef:
     - meta_scope: class.array.contents.8th
-    - match: (?<=^|\s)(\])(?=\s)
+    - match: '(?<=^|\s)(\])(?=\s)'
       pop: true
+
+  regexdef:
+    - meta_scope: regex.exp.8th
+    - match: (/)
+      pop: true
+
+  arrayns:
+    - match: '([!\+=xy]|-|2each|2map|2map\+|2map=|>map|@@?|_@|bsearch|centroid|clear|close|diff|dot|each!?|each-slice|exists\?|filter|generate|group|indexof|insert|intersect|join|len|map\+?|mean|mean\&variance|new|op!|open|pop|push|qsort|randeach|reduce\+?|remove|rev|shift|suffle|slice\+?|slide|smear|sort|union|when\!?|x-each|xchg|zip)'
+    - meta_scope: storage.arrayns.word.8th
+    - match: (\s)
+      pop: true
+
+  appns:
+    - match: '(8thdir|asset|atrun|(?>base|data|sub)dir|current|exename|isgui|lowmem|main|oncrash|opts[!@]|orientation!?|pic|raise|restart|resumed|signal|standalone|suspended|sysquit|terminated|trap)'
+    - meta_scope: orange.appns.word.8th
+    - match: (\s)
+      pop: true
+
+  bufferns:
+    - match: '([!\+/=@]|1[+-]|>base64|>hex|>mpack|append|base64>|bit[!@]|clear|compress|conv|each!?|each-slice|expand|fill|getb|hex>|len|mem>|move|mpack-ignore|mpack>|n\+|new|op|rev|search|shmem|slice|splice|ungetb|writable|xor)'
+    - meta_scope: storage.bufferns.word.8th
+    - match: (\s)
+      pop: true
+
+  filens:
+    - match: '(abspath|append|associate|atime|canwrite\?|chmod|close|copy|copydir|create|ctime|dir\?|dname|eachbuf|eachline|enssep|eof\?|exists\?|flush|fname|get(?>[bc]|line|mod)|glob(?>-nocase)?|homedir|include|launch|link[\?>]?|mkdir|mmap(?>-range\??)?|mtime|mv|open(?>-ro)?|print|read\??|relpath|rglob|rm(?>dir)?|seek|sep|size|slurp|sparse\?|stderr|stdin|stdout|tell|times|trash|truncate|unget[bc]|unzip(?>-entry)?|watch|write[n]?|zip(?>[\+@]|entry|new|open|save))'
+    - meta_scope: io.filens.word.8th
+    - match: (\s)
+      pop: true
+
+  includestring:
+    - meta_scope: string.include.8th
+    - match: '([\w/\.]*)(?=\s)'
+      pop: true
+
+  globalns:
+    - match: '(r(?>pick|roll))'
+      scope: peach.globalns.rstack.immediate.8th
+    - match: '{{mathoperators}}'
+      scope: operator.8th
+    - match: '{{preproc}}'
+      scope: preprocessor.8th
+    - match: '{{globalrstack}}'
+      scope: peach.globalns.rstack.immediate.8th
+    - match: '{{globalcompiletime}}'
+      scope: orange.globalns.immediate.other.8th
+    - match: '{{globalstack}}'
+      scope: peach.globalns.stack.immediate.8th
+    - match: '{{globalimmed}}'
+      scope: control.globalns.word.immediate.8th
+    - match: ((?>case|of|default):)
+      scope: control.globalns.word.immediate.8th
+    - match: '{{globalinc}}'
+      scope: include.globalns.word.8th
+      push: includestring
+    - match: '{{globalrand}}'
+      scope: keyword.globalns.random.word.8th
+    - match: '{{globaljson}}'
+      scope: keyword.globalns.json.word.8th
+    - match: '{{globalsem}}'
+      scope: keyword.globalns.sem.word.8th
+    - match: '{{globalkeyword}}'
+      scope: keyword.globalns.8th
+    - match: '(;with)'
+      scope: include.globalns.word.8th
+    - match: '(-inf\?|[34n]drop|actor:|bi|c/does|2?dip|ENUM:|expect|FLAG:|inf\?|items_used|keep|name>os|NaN\?|next-arg|os>long-name|poke|(?>process|remaining)-args|SED-CHECK|setting!|settings(?>[@!]\[\]|@\??|!)|sleep-until|struct:|tlog|tri|words/?|)'
+      scope: keyword.globalns.word.8th
+    - match: (\s)
+      pop: true
+
+  heapns:
+    - match: '(\+|clear|len|max!|new|peek|pop|push|unique)'
+      scope: storage.heapns.word.8th
+    - match: (\s)
+      pop: true
+
+  hardwarens:
+    - match: '(arm\?|camera-(?>fmt|img)|camera\??|cpu\?|device\?|displays\?|displaysize\?|finger-(?>match|support)|gpio(?>[!@]|-mmap)?|i2c(?>[@!]reg|[@!])?|is(?>round|watch)\?|mac\?|mem\?|model\?|poll|sensor|start|stop|uid\?)'
+      scope: support.hardwarens.word.8th
+    - match: (\s)
+      pop: true
+
+  imapns:
+    - match: '(fetch-(?>full|uid-mail)|login|new|select-inbox|>map)'
+      scope: io.imapns.word.8th
+    - match: (\s)
+      pop: true
+
+  mapns:
+    - match: '([!+]\??|-|@[\?@]?|\[\]!|_[!@]|bitmap|clear|data|each|exists\?|filter|iter(?>-all)?|keys|len|map|new|op!|open|slice|vals|xchg|zip)'
+      scope: storage.mapns.word.8th
+    - match: (\s)
+      pop: true
+
+  numberns:
+    - match: '{{vnumbersns}}'
+      scope: cyan.numberns.word.8th
+    - match: (\s)
+      pop: true
+
+  osns:
+    - match: '(devname|env|lang|region)'
+      scope: support.osns.word.8th
+    - match: (\s)
+      pop: true
+
+  pointerns:
+    - match: '(cast|len|pack|unpack(?>_orig)?)'
+      scope: storage.pointerns.word.8th
+    - match: (\s)
+      pop: true
+
+  pubsubns:
+    - match: '(publish|qsize|subscribe)'
+      scope: io.pubsubns.word.8th
+    - match: (\s)
+      pop: true
+
+  queuens:
+    - match: '(\+|clear|len|new|notify|overwrite|peek|pick|pop|push|remove|shift|size|slide|throwing|wait)'
+      scope: storage.queuens.word.8th
+    - match: (\s)
+      pop: true
+
+  regexns:
+    - match: '(\+?\+?match|\+?/|@|len|new|rx|str)'
+      scope: regex.regexns.word.8th
+    - match: (\s)
+      pop: true
+
+  stringns:
+    - match: '{{vstringns}}'
+      scope: string.stringns.word.8th
+    - match: '({{operators}})'
+      scope: operator.stringns.8th
+    - match: (\s)
+      pop: true
+
+  stackns:
+    - match: '([\+\.]|clear|len|ndrop|new|op!|peek|pick|pop|push|roll|shift|size|slide|swap|throwing)'
+    - meta_scope: peach.stackns.word.8th
+    - match: (\s)
+      pop: true
+
+  taskns:
+    - match: '([@!]|by-name|cirtask|def-(?>queue|stack)|done\?|err[!\?]|errno\?|getq|guitask|handler|kill|list|main|max-exceptions|name[!@]|notify|parent|pop|priority|push|q-(?>notify|wait)|qlen|result|set-affinity|setq|task(?>-n|-stop)?|wait)'
+      scope: gray.taskns.word.8th
+    - match: (\s)
+      pop: true
+
+  wordns:
+    - match: ([!@]|\(is\)|alias:|cb|deprecate|exec\??|ffifail|find|forget|is|name|undo)
+      scope: define.wordns.word.8th
+    - match: (\s)
+      pop: true
+
 
