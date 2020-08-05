@@ -1,0 +1,107 @@
+
+ok> words
+a
+! + - 2each 2map 2map+ 2map= = @ @@ _@ bsearch clear close dot each each! exists? filter generate group indexof insert join len
+map map+ map= new op! open pop push qsort randeach reduce reduce+ remove rev shift shuffle slice slice+ slide sort when when! x
+x-each xchg y zip
+
+app
+8thdir asset basedir current datadir exename isgui lowmem oncrash opts! opts@ orientation orientation! pid post-main pre-main raise restart resumed signal standalone subdir suspended sysquit terminated trap
+
+b
+! + / 1+ 1- = >base64 >hex @ append base64> bit! bit@ clear compress conv each each! each-slice expand fill hex> len mem> move n+ new op rev search shmem slice splice writable xor
+
+c
+* + = >ri abs arg conj new
+
+con
+.con accept accept-pwd alt-font black blink blue bold bright clrbos clreol clreos clrln clrsol cls color conceal cyan dim down encircle end eval fast-blink frame free getxy goto-column gotoxy green hide italic key key? left load-history magenta newline next-line no-frame no-overline normal normalAttr onBlack onBlue onColor onCyan onGreen onMagenta onRed onWhite onYellow overline prev-line print red redir? reset reset-font restore reverse right save save-history scroll-down scroll-up show size? strike up uscore white wrap-at yellow
+
+cr
+>aes256gcm >cp >cpe >decrypt >edbox >encrypt >rsabox >uuid aad? aes256box-sig aes256gcm> aesgcm blakehash CBC CFB chacha20box-sig chachapoly cipher! cipher@ cp> cpe> CTR decrypt decrypt+ decrypt> dh-genkey dh-secret dh-sign dh-verify ebox-sig ECB ecc-genkey ecc-secret ecc-sign ecc-verify edbox-sig edbox> encrypt encrypt+ encrypt> ensurekey GCM gcm-tag-size genkey hash hash! hash+ hash>b hash>s hash@ hmac iv? mode mode@ OFB rand randbuf randkey restore rsa_decrypt rsa_encrypt rsa_sign rsa_verify rsabox-sig rsabox> rsagenkey save sbox-sig shard tag? unshard uuid uuid>
+
+d
++ +msec - / = >fixed >msec >unix fixed> format join msec msec> new parse ticks ticks/sec timer timer-ctrl tzadjust unix> updatetz
+
+db
+add-func aes! begin bind bind-exec bind-exec[] close col col[] col{} commit exec exec-cb exec-name key kind? last-rowid mysql? odbc? open prep-name prepare rekey rollback sql@
+
+dbg
+bp except-task@ go line-info prompt stop trace trace-enter trace-leave
+
+f
+abspath append associate atime canwrite? chmod close copy copydir create ctime dir? dname eachbuf eachline enssep eof? exists? flush fname getline getmod glob glob-nocase homedir include launch link link> link? mkdir mmap mmap-range mmap-range? mtime mv open open-ro popen read read? relpath rglob rm rmdir seek sep shellexecute size slurp sparse? stderr stdin stdout tell times trash truncate unzip unzip-entry watch write writen zip+ zip@ zipentry zipnew zipopen zipsave
+
+font
+bold face? glyph-path glyph-pos info italic measure new pixels pixels? points points? styles styles? underline
+
+G
+! #! ## #> #if ' ( (* (:) (code) (defer) (dump) (getc) (gets) (interp) (log) (needs) (putc) (puts) (putslim) (stat) (with) ) +hook +listener +ref ,# -- -----BEGIN -hook -Inf -listener -ref -rot . .# .hook .needs .r .s .stats .ver .with 0; 2drop 2dup 2over
+2swap 8thdt? 8thver? : ; ;; ;;; ;then ;with <# <#> >clip >json >kind >n >r >s ?: @  ` `` again ahead and appname appopts apropos argc args array? assert base bits break break? build? buildver? bye c# case caseof chdir clip> clone clone-shallow cold compat-level compile compile? compiling? conflict const constant container? counting-allocations cr curlang curry curry: decimal defer: deferred: deg>rad depth die drop dstack dump dup dup? e# else error? eval eval! eval0 execnull extra! extra@ false fnv fourth free func: getc getcwd getenv gets handler header help hex i: i; if if; Inf isa? jcall jclass jmethod json! json-8th> json-nesting json-pretty json-throw json> json@ k32 l: last lib libbin listener@ literal locals: lock lock-to locked? log log-async log-task log-time log-time-local long-days long-months longjmp loop loop- map? mark mark? memfree mobile? n# name>sem NaN needs new nip noop not ns ns: ns>ls ns>s ns? null null; null? number? off on onexit only op! or os os-names os>name over p: pack parse parse-csv parsech parseln parsews pick pool-clear pool-clear-all prior private prompt public putc puts putslim quote r! r> r@ rad>deg
+rand-jit rand-jsf rand-native rand-pcg rand-pcg-seed randbuf-pcg random rdrop recurse recurse-stack ref@ reg! reg@ regbin@ repeat required? requires reset roll rop! rot rstack rswap rusage s>ns same? scriptdir scriptfile SED: sem sem-post sem-rm sem-wait sem-wait? sem>name semi-throw set-wipe setenv setjmp sh sh$ sh32 short-days short-months sleep space stack-check stack-size step
+string? swap tab-hook tell-conflict tempdir tempfilename then third throw thrownull times true tuck type-check typeassert uname
+unlock unpack until until! var var, was-required while while! with: word? words words-like words/ xchg xor
+
+gr
++edge +edge+w +node connect edges m! m@ neighbors new node-edges nodes traverse
+
+h
++ clear len max! new peek pop push unique
+
+hw
+arm? cpu? device? displays? displaysize? mac? mem? model? poll sensor start stop uid?
+
+I
+#else? #match ((include)) (cold) (curry) (include) (libbin) (null?) (op1) (op2) (scriptdir) (scriptfile) (shex) +scriptfile -scriptfile .words _getcwd _gettemppath buf? cold filtwrds getEnvVar hwid inner/ is lh logok logp logt logtask logtime logtime-local lw main needs_ma r:/ regver scriptmap setenv sh trace-word
+
+img
+>file >fmt copy crop data desat fill fillrect filter flip from-svg new pix! pix@ rotate scale scroll size
+
+m
+! !? + +? - @ @? @@ []! _! _@ bitmap clear data each exists? filter keys len map new op! open slice vals xchg zip
+
+mat
+! * + = @ affine col data det dim? get-n ident inv m. minor n* new new-minor row same-size? trans xform
+
+n
+* */ + +! - / /mod 1+ 1- < = > ^ abs acos asin atan atan2 band between bfloat bic bint binv bnot bor bxor cast ceil clamp cmp cos E exp expm1 expmod float floor frac gcd int invmod kind? lcm ln ln1p max min mod neg odd? PI prime? r+ round round2 rounding sgn shl shr sin sqr sqrt tan trunc ~=
+
+net
+>url accept addrinfo>o again? bind browse close closed? connect DGRAM getaddrinfo getpeername ifaces? INET4 INET6 listen opts PROTO_TCP PROTO_UDP read read-all recvfrom sendto server setsockopt socket STREAM tlshello url> wait write
+
+nk
+(begin) (chart-begin) (chart-begin-colored) (chart-end) (end) (group-begin) (group-end) (property) >img addfont anti-alias bounds bounds! button button-color button-set-behavior chart-add-slot chart-add-slot-colored chart-push chart-push-slot checkbox clicked? close-this! close-this? close? color-picker combo combo-begin-color combo-begin-label combo-cb combo-end contextual-begin contextual-close contextual-end contextual-item-image-text contextual-item-symbol-text contextual-item-text display-info display@ do down? draw-image draw-image-at draw-image-centered draw-text draw-text-high edit-focus edit-string event event-msec event-wait fill-arc fill-circle fill-poly fill-rect fill-rect-color fill-triangle fullscreen get get-row-height getfont getmap gl? hovered? image init input-button input-key input-motion input-scroll input-string key-down? key-pressed? key-released? label label-colored label-wrap label-wrap-colored layout-bounds layout-push-dynamic layout-push-static layout-push-variable layout-ratio-from-pixel layout-reset-row-height layout-row layout-row-begin layout-row-dynamic layout-row-end layout-row-height layout-row-push layout-row-static layout-row-template-begin layout-row-template-end layout-space-begin layout-space-end layout-space-push layout-widget-bounds list-begin list-end list-new list-range m! m@ make-style max-vertex-element measure measure-font menu-begin menu-close menu-end menu-item-image menu-item-label menu-item-symbol menubar-begin menubar-end mouse-pos option plot plot-fn pop-font popup-begin popup-close popup-end popup-scroll-ofs popup-scroll-ofs! progress pt>local pt>screen push-font rect-center rect-intersect rect-pad rect-shrink rect-union rect/high rect/wide rect>local rect>screen released? render scancode? screen-size screen-win-close selectable set set-num-vertices setpos setwin slider spacing stroke-arc stroke-circle stroke-curve stroke-line stroke-polygon stroke-polyline stroke-rect stroke-tri style-from-table text? tooltip tree-pop tree-state-push use-style vsync widget widget-bounds widget-fitting widget-hovered? widget-mouse-click-down? widget-mouse-clicked? win win-bounds win-bounds! win-close win-closed? win-collapse win-collapsed? win-content-bounds win-focus win-focused? win-hidden? win-hovered? win-scroll-ofs win-scroll-ofs! win-show win?
+
+ns
+# #p a app b c con cr d db dbg f font G gr h hw I img m mat MAX n net nk ns os ptr q r s sql st T t user v w X xml
+
+os
+devname env lang region
+
+ptr
+cast len pack unpack unpack_orig
+
+q
++ clear len new notify overwrite peek pick pop push remove shift size slide throwing wait
+
+r
+++match +/ +match / @ len match new rx str
+
+s
+! * + - / /scripts <+ = =ic >base64 >ucs2 @ append base64> clear cmp cmpi compress days! each each! eachline escape expand fill
+fmt globmatch hexupr insert intl intl! lang lc len lsub ltrim map months! new reduce replace replace! rev rsearch rsub rtrim script? search size slice strfmt text-wrap trim uc ucs2> utf8? zt
+
+st
++ . clear len ndrop new op! peek pick pop push roll shift size slide swap throwing
+
+t
+! @ by-name curtask def-queue def-stack default-handler done? err! err? errno? getq guitask handler kill list main max-exceptions name! name@ notify parent pop priority push q-notify q-wait qlen result set-affinity setq task task-n task-stop wait
+
+user
+<> dtest endword if? iff ift not? notf nott startword
+
+w
+! (is) @ alias: cb deprecate exec exec? ffifail find forget is name undo
+
+xml
+md-init md-parse parse-stream

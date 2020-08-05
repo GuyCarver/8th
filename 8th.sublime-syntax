@@ -10,12 +10,12 @@ scope: source.8th
 variables:
   operators: '[@=!\*\+\-/]'
   mathoperators: '({{operators}}|>[sn]|and|xor|or|not|invert|negate|min|max|mod|1[\+-])'
-  preproc: '(#if|#else|#then|dbg:stop|dbg:prompt)'
+  preproc: '(#if|#else|#then|dbg:stop|dbg:prompt|locals:)'
   globalstack: '(2?dup|2?drop|r?swap|2?over|nip|tuck|-?rot|pick|roll|depth|dstack|fourth|third)'
   globalinc: '(lib(?>bin)?|needs|requires|with:)\s'
   globalcompiletime: '(p:|compile\??|i:|literal|recurse)'
   globalimmed: '(?<=^|\s)(0;|if;?|;;;?|else|''|;?then|repeat|again|until!?|while!?|caseof|when|loop-?|times|ahead|break)'
-  globalkeyword: '(curry:?|sleep|\(code\)|\(defer\)|\(dump\)|\(get[cs]\)|\(interp\)|\(log\)|\(stat\)|[-\+]hook|[-\+]listener|[-\+]ref|ref@|-?Inf\??|\.hook|\.needs|\.[#rs]|\.stats|\.ver|\.with|>clip|>json|>kind|\?:|appname|apropos|argc|args|assert|base|bits|build\?|buildver\?|bye|chdir|clip>|clone|clone-shallow|cold|compat-level|conflict|const|counting-allocations|curlang|decimal|defer:|deferred:|deg>rad|die|dump|e#|error\?|eval[!0]?|execnull|expect|extra[!@]|fnv|free|get[cs]|getcwd|getenv|handler|header|help|hex|jcall|jclass|jmethod|k32|last|listener@|lock(?>-to|ed\?)?|mark|memfree|mobile\?|name>(?>os|sem)|new|next-arg|noop|ns[:\?]|ns>l?s|null;?|off|on|onexit|only|op!|os(?>-names|>long-name|>name)?|pack|parse(?>-csv|ch|ln|ws)?|pool-clear(?>-all)?|prior|private|prompt|public|put[cs]|putslim|rad>deg|recurse-stack|reg[@!]|regbin@|remaining-args|rop!|s>ns|scriptdir|scriptfile|set(?>-wipe|env|jmp)|settings[!@]|sh\$?|space|step|throw(?>null)?|unlock|unpack|xchg)'
+  globalkeyword: '(curry:?|sleep(?>-until)?|\(code\)|\(defer\)|\(dump\)|\(get[cs]\)|\(interp\)|\(log\)|\(stat\)|[-\+]hook|[-\+]listener|[-\+]ref|ref@|-?Inf\??|\.hook|\.needs|\.[#rs]|\.stats|\.ver|\.with|>clip|>json|>kind|\?:|appname|apropos|argc|args|assert|base|bits|build\?|buildver\?|bye|chdir|clip>|clone|clone-shallow|cold|compat-level|conflict|const|counting-allocations|curlang|decimal|defer:|deferred:|deg>rad|die|dump|e#|error\?|eval[!0]?|execnull|expect|extra[!@]|fnv|free|get[cs]|getcwd|getenv|handler|header|help|hex|jcall|jclass|jmethod|k32|last|listener@|lock(?>-to|ed\?)?|mark|memfree|mobile\?|name>(?>os|sem)|new|next-arg|noop|ns[:\?]|ns>l?s|null;?|off|on|onexit|only|op!|os(?>-names|>long-name|>name)?|pack|parse(?>-csv|ch|ln|ws)?|pool-clear(?>-all)?|prior|private|prompt|public|put[cs]|putslim|rad>deg|recurse-stack|reg[@!]|regbin@|remaining-args|rop!|s>ns|scriptdir|scriptfile|set(?>-wipe|env|jmp)|settings[!@]|sh\$?|space|step|throw(?>null)?|unlock|unpack|xchg)'
   globalrand: '(rand-(jit|jsf|native|normal|pcg|pct-seed|range|select)|randbuf-pcg|random)'
   globalrstack: '((?<=^|\s)(>r|r[>@!])|(r?(?>swap|rusage|stack|op!)))'
   globalsem: '(sem-(post|rm|wait\??)|sem(?>>name)?)'
@@ -25,6 +25,20 @@ variables:
 
 contexts:
   main:
+    - match: '(?<=^|\s)((?>\\|--) .*)'
+      comment: line comment
+      scope: comment.line.backslash.8th
+      push:
+        - match: '(\n)'
+          pop: true
+
+    - match: '(?<=^|\s)(\(\*)(?=\s)'
+      comment: multiline comments for 8th
+      push:
+        - meta_scope: comment.block.multiline.8th
+        - match: '(?<=^|\s)(\*\))(?=\s)'
+          pop: true
+
     - match: '(?i:(?<=^|\s)(true|false)(?=\s))'
       scope: constant.language.8th
     - match: '(?<=^|\s)([-+]?(0x|0X|\$)[0-9a-fA-F]*)(?=\s)'
@@ -49,23 +63,11 @@ contexts:
       scope: constant.numeric.ascii.8th
     - match: '(?<=^|\s)(([&^]\S)|(("|'')\S("|'')))(?=\s)'
       scope: constant.character.8th
-    - match: '(?<=^|\s)(-- .*$)'
-      comment: line comments for 8th
-      scope: comment.line.double-dash.8th
-    - match: '(?<=^|\s)(\\ .*$)'
-      comment: ANSI line comment
-      scope: comment.line.backslash.8th
-    - match: '(?<=^|\s)(\(\*)(?=\s)'
-      comment: multiline comments for 8th
-      push:
-        - meta_scope: comment.block.multiline.8th
-        - match: '(?<=^|\s)(\*\))(?=\s)'
-          pop: true
     - match: '(?<=^|\s)(".*?)'
       scope: string.8th
       push:
         - meta_scope: string.content.8th
-        - match: '(.*")\s'
+        - match: '(.*?")\s'
           pop: true
 
     - match: '(?<=^|\s)((constant|var,?))\s+'
@@ -77,6 +79,14 @@ contexts:
 
     - match: '(?<=^|\s)(;with)(?=\s)'
       scope: include.globalns.word.8th
+
+    - match: '(?<=^|\s)(with:\s*?imap)(?=\s)'
+      scope: include.with.imap.8th
+      push:
+        - include: imapwords
+        - include: main
+        - match: '(?<=^|\s)(;with)(?=\s)'
+          pop: true
 
     - match: '{{globalinc}}'
       scope: include.globalns.word.8th
@@ -140,12 +150,12 @@ contexts:
 
     - match: '(?<=^|\s)(a:)(?=\S)'
       comment: array namespace
-      scope: arrayns.8th
+      scope: storage.arrayns.8th
       push: arrayns
 
     - match: '(?<=^|\s)(app:)(?=\S)'
       comment: application namespace
-      scope: appns.8th
+      scope: orange.appns.8th
       push: appns
 
     - match: '(?<=^|\s)(b:)(?=\S)'
@@ -218,7 +228,7 @@ contexts:
 
     - match: '(?<=^|\s)(st:)(?=\S)'
       comment: stack namespace
-      scope: peach:stackns.8th
+      scope: peach.stackns.8th
       push: stackns
 
     - match: '(?<=^|\s)(t:)(?=\S)'
@@ -260,29 +270,41 @@ contexts:
     - match: (/)
       pop: true
 
-  arrayns:
-    - match: '([!\+=xy]|-|2each|2map|2map\+|2map=|>map|@@?|_@|bsearch|centroid|clear|close|diff|dot|each!?|each-slice|exists\?|filter|generate|group|indexof|insert|intersect|join|len|map\+?|mean|mean\&variance|new|op!|open|pop|push|qsort|randeach|reduce\+?|remove|rev|shift|suffle|slice\+?|slide|smear|sort|union|when\!?|x-each|xchg|zip)'
-    - meta_scope: storage.arrayns.word.8th
+  endns:
     - match: (\s)
       pop: true
+
+  arraywords:
+    - match: '(xchg|[!\+=xy]|-|2each|2map[\+=]?|>map|@@?|_@|bsearch|centroid|clear|close|diff|dot|each(?>!|-slice)?|exists\?|filter|generate|group|indexof|insert|intersect|join|len|map\+?|mean(?>\&variance)?|new|op!|open|pop|push|qsort|randeach|reduce\+?|remove|rev|shift|suffle|slice\+?|slide|smear|sort|union|when\!?|x-each|zip)'
+      scope: storage.arrayns.word.8th
+
+  arrayns:
+    - include: arraywords
+    - include: endns
+
+  appwords:
+    - match: '(8thdir|asset|atrun|(?>base|data|sub)dir|current|exename|isgui|lowmem|main|oncrash|opts[!@]|orientation!?|pic|raise|restart|resumed|signal|standalone|suspended|sysquit|terminated|trap)'
+      scope: orange.appns.word.8th
 
   appns:
-    - match: '(8thdir|asset|atrun|(?>base|data|sub)dir|current|exename|isgui|lowmem|main|oncrash|opts[!@]|orientation!?|pic|raise|restart|resumed|signal|standalone|suspended|sysquit|terminated|trap)'
-    - meta_scope: orange.appns.word.8th
-    - match: (\s)
-      pop: true
+    - include: appwords
+    - include: endns
+
+  bufferwords:
+    - match: '([!\+/=@]|1[+-]|>base64|>hex|>mpack|append|base64>|bit[!@]|clear|compress|conv|each!?|each-slice|expand|fill|getb|hex>|len|mem>|move|mpack-ignore|mpack>|n\+|new|op|rev|search|shmem|slice|splice|ungetb|writable|xor)'
+      scope: storage.bufferns.word.8th
 
   bufferns:
-    - match: '([!\+/=@]|1[+-]|>base64|>hex|>mpack|append|base64>|bit[!@]|clear|compress|conv|each!?|each-slice|expand|fill|getb|hex>|len|mem>|move|mpack-ignore|mpack>|n\+|new|op|rev|search|shmem|slice|splice|ungetb|writable|xor)'
-    - meta_scope: storage.bufferns.word.8th
-    - match: (\s)
-      pop: true
+    - include: bufferwords
+    - include: endns
+
+  filewords:
+    - match: '(abspath|append|associate|atime|canwrite\?|chmod|close|copy(?>dir)?|create|ctime|dir\?|dname|eachbuf|eachline|enssep|eof\?|exists\?|flush|fname|get(?>[bc]|line|mod)|glob(?>-nocase)?|homedir|include|launch|link[\?>]?|mkdir|mmap(?>-range\??)?|mtime|mv|open(?>-ro)?|print|read\??|relpath|rglob|rm(?>dir)?|seek|sep|size|slurp|sparse\?|stderr|stdin|stdout|tell|times|trash|truncate|unget[bc]|unzip(?>-entry)?|watch|write[n]?|zip(?>[\+@]|entry|new|open|save))'
+      scope: io.filens.word.8th
 
   filens:
-    - match: '(abspath|append|associate|atime|canwrite\?|chmod|close|copy|copydir|create|ctime|dir\?|dname|eachbuf|eachline|enssep|eof\?|exists\?|flush|fname|get(?>[bc]|line|mod)|glob(?>-nocase)?|homedir|include|launch|link[\?>]?|mkdir|mmap(?>-range\??)?|mtime|mv|open(?>-ro)?|print|read\??|relpath|rglob|rm(?>dir)?|seek|sep|size|slurp|sparse\?|stderr|stdin|stdout|tell|times|trash|truncate|unget[bc]|unzip(?>-entry)?|watch|write[n]?|zip(?>[\+@]|entry|new|open|save))'
-    - meta_scope: io.filens.word.8th
-    - match: (\s)
-      pop: true
+    - include: filewords
+    - include: endns
 
   includestring:
     - meta_scope: string.include.8th
@@ -315,99 +337,126 @@ contexts:
       scope: keyword.globalns.json.word.8th
     - match: '{{globalsem}}'
       scope: keyword.globalns.sem.word.8th
-    - match: '{{globalkeyword}}'
-      scope: keyword.globalns.8th
     - match: '(;with)'
       scope: include.globalns.word.8th
-    - match: '(-inf\?|[34n]drop|actor:|bi|c/does|2?dip|ENUM:|expect|FLAG:|inf\?|items_used|keep|name>os|NaN\?|next-arg|os>long-name|poke|(?>process|remaining)-args|SED-CHECK|setting!|settings(?>[@!]\[\]|@\??|!)|sleep-until|struct:|tlog|tri|words/?|)'
+    - match: '(-inf\?|[34n]drop|actor:|bi|c/does|2?dip|ENUM:|expect|FLAG:|inf\?|items_used|keep|name>os|NaN\?|next-arg|os>long-name|poke|(?>process|remaining)-args|SED-CHECK|settings(?>[@!]\[\]|@\??|!)|struct:|tlog|tri|words/?|)'
       scope: keyword.globalns.word.8th
-    - match: (\s)
-      pop: true
+    - match: '{{globalkeyword}}'
+      scope: keyword.globalns.8th
+    - include: endns
 
-  heapns:
+  heapwords:
     - match: '(\+|clear|len|max!|new|peek|pop|push|unique)'
       scope: storage.heapns.word.8th
-    - match: (\s)
-      pop: true
 
-  hardwarens:
+  heapns:
+    - include: heapwords
+    - include: endns
+
+  hardwarewords:
     - match: '(arm\?|camera-(?>fmt|img)|camera\??|cpu\?|device\?|displays\?|displaysize\?|finger-(?>match|support)|gpio(?>[!@]|-mmap)?|i2c(?>[@!]reg|[@!])?|is(?>round|watch)\?|mac\?|mem\?|model\?|poll|sensor|start|stop|uid\?)'
       scope: support.hardwarens.word.8th
-    - match: (\s)
-      pop: true
+
+  hardwarens:
+    - include: hardwarewords
+    - include: endns
+
+  imapwords:
+    - match: '(fetch-(?>full|uid-mail)|login|new|select-inbox|parse-response|writeln|searchids|fetch-mail|net@|logout|find-ok|>map)'
+      scope: io.imapns.word.8th
 
   imapns:
-    - match: '(fetch-(?>full|uid-mail)|login|new|select-inbox|>map)'
-      scope: io.imapns.word.8th
-    - match: (\s)
-      pop: true
+    - include: imapwords
+    - include: endns
 
-  mapns:
+  mapwords:
     - match: '([!+]\??|-|@[\?@]?|\[\]!|_[!@]|bitmap|clear|data|each|exists\?|filter|iter(?>-all)?|keys|len|map|new|op!|open|slice|vals|xchg|zip)'
       scope: storage.mapns.word.8th
-    - match: (\s)
-      pop: true
 
-  numberns:
+  mapns:
+    - include: mapwords
+    - include: endns
+
+  numberwords:
     - match: '{{vnumbersns}}'
       scope: cyan.numberns.word.8th
-    - match: (\s)
-      pop: true
 
-  osns:
+  numberns:
+    - include: numberwords
+    - include: endns
+
+  oswords:
     - match: '(devname|env|lang|region)'
       scope: support.osns.word.8th
-    - match: (\s)
-      pop: true
 
-  pointerns:
+  osns:
+    - include: oswords
+    - include: endns
+
+  pointerwords:
     - match: '(cast|len|pack|unpack(?>_orig)?)'
       scope: storage.pointerns.word.8th
-    - match: (\s)
-      pop: true
 
-  pubsubns:
+  pointerns:
+    - include: pointerwords
+    - include: endns
+
+  pubsubwords:
     - match: '(publish|qsize|subscribe)'
       scope: io.pubsubns.word.8th
-    - match: (\s)
-      pop: true
 
-  queuens:
+  pubsubns:
+    - include: pubsubwords
+    - include: endns
+
+  queuewords:
     - match: '(\+|clear|len|new|notify|overwrite|peek|pick|pop|push|remove|shift|size|slide|throwing|wait)'
       scope: storage.queuens.word.8th
-    - match: (\s)
-      pop: true
 
-  regexns:
+  queuens:
+    - include: queuewords
+    - include: endns
+
+  regexwords:
     - match: '(\+?\+?match|\+?/|@|len|new|rx|str)'
       scope: regex.regexns.word.8th
-    - match: (\s)
-      pop: true
 
-  stringns:
+  regexns:
+    - include: regexwords
+    - include: endns
+
+  stringwords:
     - match: '{{vstringns}}'
       scope: string.stringns.word.8th
     - match: '({{operators}})'
       scope: operator.stringns.8th
-    - match: (\s)
-      pop: true
+
+  stringns:
+    - include: stringwords
+    - include: endns
+
+  stackwords:
+    - match: '([\+\.]|clear|len|ndrop|new|op!|peek|pick|pop|push|roll|shift|size|slide|swap|throwing)'
+      scope: peach.stackns.word.8th
 
   stackns:
-    - match: '([\+\.]|clear|len|ndrop|new|op!|peek|pick|pop|push|roll|shift|size|slide|swap|throwing)'
-    - meta_scope: peach.stackns.word.8th
-    - match: (\s)
-      pop: true
+    - include: stackwords
+    - include: endns
 
-  taskns:
+  taskwords:
     - match: '([@!]|by-name|cirtask|def-(?>queue|stack)|done\?|err[!\?]|errno\?|getq|guitask|handler|kill|list|main|max-exceptions|name[!@]|notify|parent|pop|priority|push|q-(?>notify|wait)|qlen|result|set-affinity|setq|task(?>-n|-stop)?|wait)'
       scope: gray.taskns.word.8th
-    - match: (\s)
-      pop: true
 
-  wordns:
+  taskns:
+    - include: taskwords
+    - include: endns
+
+  wordwords:
     - match: ([!@]|\(is\)|alias:|cb|deprecate|exec\??|ffifail|find|forget|is|name|undo)
       scope: define.wordns.word.8th
-    - match: (\s)
-      pop: true
+
+  wordns:
+    - include: wordwords
+    - include: endns
 
 
