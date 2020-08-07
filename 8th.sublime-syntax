@@ -25,12 +25,8 @@ variables:
 
 contexts:
   main:
-    - match: '(?<=^|\s)((?>\\|--) .*)'
-      comment: line comment
-      scope: comment.line.backslash.8th
-      push:
-        - match: '(\n)'
-          pop: true
+    - include: linecomment
+    - include: preprocconditional
 
     - match: '(?<=^|\s)(\(\*)(?=\s)'
       comment: multiline comments for 8th
@@ -259,9 +255,55 @@ contexts:
       scope: regex.regexns.8th
       push: regexns
 
+  thencond:
+    - match: '(?<=^|\s)((?>G:)?#then)(?=\s)'
+      scope: preprocessor.then.8th
+      pop: true
+
+  elsecond:
+    - match: '(?<=^|\s)((?>G:)?#else)(?=\s)'
+      scope: preprocessor.else.8th
+      pop: true
+
+  if0cond:
+    - match: '(?<=^|\s)0\s+((?>G:)?#if)(?=\s)'
+      scope: preprocessor.if.8th
+      push:
+        - meta_scope: gray.preprocessor.if.8th
+        - include: elsecond
+        - include: thencond
+
+  else1cond:
+    - include: thencond
+    - match: '(?<=^|\s)((?>G:)?#else)(?=\s)'
+      scope: preprocessor.else.8th
+      push:
+        - meta_scope: gray.preprocessor.if.8th
+        - include: thencond
+
+  if1cond:
+    - match: '(?<=^|\s)1\s+((?>G:)?#if)(?=\s)'
+      scope: preprocessor.if.8th
+      push:
+        - include: else1cond
+        - include: main
+
+  preprocconditional:
+    - include: if1cond
+    - include: if0cond
+
+  linecomment:
+    - match: '(?<=^|\s)((?>\\|--) .*)'
+      comment: line comment
+      scope: comment.line.backslash.8th
+      push:
+        - match: '(\n)'
+          pop: true
+
   mapdef:
     - meta_scope: class.map.contents.8th
-    - match: '(?<=^|\s)(.*?):\s+(.*?)\s*(?=\s)'
+    - include: linecomment
+    - match: '(?<=^|\s)(.*?):\s+(.*?)(?=\s)'
       captures:
         1: string.map.contents.key.8th
         2: pink.map.contents.value.8th
@@ -270,6 +312,7 @@ contexts:
 
   arraydef:
     - meta_scope: class.array.contents.8th
+    - include: linecomment
     - match: '(?<=^|\s)(\])(?=\s)'
       pop: true
 
