@@ -135,6 +135,9 @@ contexts:
     - match: '(?<=^|\s){{preproc}}'
       scope: preprocessor.8th
 
+    - match: '(?<=^|\s)(\.|cr)(?=\s)'
+      scope: io.keyword.8th
+
     - match: '(?<=^|\s)(null\?|array\?|string\?|break\?|compiling?|container\?|isa\?|map\?|number\?|same\?)(?=\s)'
       scope: keyword.compare.8th
 
@@ -167,8 +170,10 @@ contexts:
       scope: storage.bufferns.8th
       push: bufferns
 
-    - match: '(?<=^|\s)(\.|cr)(?=\s)'
-      scope: io.keyword.8th
+    - match: '(?<=^|\s)(cr:)(?=\S)'
+      comment: crypto namespace
+      scope: purple.cryptons.8th
+      push: cryptons
 
     - match: '(?<=^|\s)(f:)(?=\S)'
       comment: file namespace
@@ -347,6 +352,14 @@ contexts:
 
   bufferns:
     - include: bufferwords
+    - include: endns
+
+  cryptowords:
+    - match: '(>aes256gcm|>cpe?|>decrypt|>edbox|>encrypt|>rsabox|>uuid|aad\?|aes256(?>box-sig|gcm>)|aesgcm|blakehash|CBC|CFB|chacha(?>20box-sig|poly)|cipher[!@]|cpe?>|CTR|decrypt[\+>]?+|dh-(?>genkey|secret|sign|verify)|ebox-sig|ECB|ecc-(?>genkey|secret|sign|verify)|edbox-sig|edbox>|encrypt[\+>]?|ensurekey|GCM|gcm-tag-size|genkey|hash(?>[\+!@]|>[bs])?|hmac|iv\?|mode@?|OFB|rand(?>buf|key)?|restore|rsa_(?>decrypt|encrypt|sign|verify)|rsabox(?>-sig|>)|rsagenkey|save|sbox-sig|(?>un)?shard|tag\?|uuid>?)(?=\s)'
+      scope: purple.cryptons.word.8th
+
+  cryptons:
+    - include: cryptowords
     - include: endns
 
   filewords:
