@@ -76,13 +76,119 @@ contexts:
     - match: '(?<=^|\s)(;with)(?=\s)'
       scope: include.globalns.word.8th
 
+    - match: '(?<=^|\s)(with:\s*?a)(?=\s)'
+      scope: include.with.array.8th
+      push:
+        - include: arraywords
+        - include: endwith
+
+    - match: '(?<=^|\s)(with:\s*?app)(?=\s)'
+      scope: include.with.app.8th
+      push:
+        - include: appwords
+        - include: endwith
+
+    - match: '(?<=^|\s)(with:\s*?b)(?=\s)'
+      scope: include.with.buffer.8th
+      push:
+        - include: bufferwords
+        - include: endwith
+
+    - match: '(?<=^|\s)(with:\s*?cr)(?=\s)'
+      scope: include.with.crypto.8th
+      push:
+        - include: cryptowords
+        - include: endwith
+
+    - match: '(?<=^|\s)(with:\s*?f)(?=\s)'
+      scope: include.with.file.8th
+      push:
+        - include: filewords
+        - include: endwith
+
+    - match: '(?<=^|\s)(with:\s*?h)(?=\s)'
+      scope: include.with.heap.8th
+      push:
+        - include: heapwords
+        - include: endwith
+
+    - match: '(?<=^|\s)(with:\s*?hw)(?=\s)'
+      scope: include.with.hardware.8th
+      push:
+        - include: hardwarewords
+        - include: endwith
+
     - match: '(?<=^|\s)(with:\s*?imap)(?=\s)'
       scope: include.with.imap.8th
       push:
         - include: imapwords
-        - include: main
-        - match: '(?<=^|\s)(;with)(?=\s)'
-          pop: true
+        - include: endwith
+
+    - match: '(?<=^|\s)(with:\s*?m)(?=\s)'
+      scope: include.with.map.8th
+      push:
+        - include: mapwords
+        - include: endwith
+
+    - match: '(?<=^|\s)(with:\s*?n)(?=\s)'
+      scope: include.with.number.8th
+      push:
+        - include: numberwords
+        - include: endwith
+
+    - match: '(?<=^|\s)(with:\s*?os)(?=\s)'
+      scope: include.with.os.8th
+      push:
+        - include: oswords
+        - include: endwith
+
+    - match: '(?<=^|\s)(with:\s*?p)(?=\s)'
+      scope: include.with.pointer.8th
+      push:
+        - include: pointerwords
+        - include: endwith
+
+    - match: '(?<=^|\s)(with:\s*?pubsub)(?=\s)'
+      scope: include.with.pubsub.8th
+      push:
+        - include: pubsubwords
+        - include: endwith
+
+    - match: '(?<=^|\s)(with:\s*?q)(?=\s)'
+      scope: include.with.queue.8th
+      push:
+        - include: queuewords
+        - include: endwith
+
+    - match: '(?<=^|\s)(with:\s*?r)(?=\s)'
+      scope: include.with.regex.8th
+      push:
+        - include: regexwords
+        - include: endwith
+
+    - match: '(?<=^|\s)(with:\s*?s)(?=\s)'
+      scope: include.with.string.8th
+      push:
+        - include: stringwords
+        - include: endwith
+
+    - match: '(?<=^|\s)(with:\s*?st)(?=\s)'
+      scope: include.with.stack.8th
+      push:
+        - include: stackwords
+        - include: endwith
+
+    - match: '(?<=^|\s)(with:\s*?t)(?=\s)'
+      scope: include.with.task.8th
+      push:
+        - include: taskwords
+        - include: endwith
+
+    - match: '(?<=^|\s)(with:\s*?w)(?=\s)'
+      scope: include.with.word.8th
+      push:
+        - include: wordwords
+        - include: endwith
 
     - match: '{{globalinc}}'
       scope: include.globalns.word.8th
@@ -324,6 +430,11 @@ contexts:
   regexdef:
     - meta_scope: regex.exp.8th
     - match: (/)
+      pop: true
+
+  endwith:
+    - include: main
+    - match: '(?<=^|\s)(;with)(?=\s)'
       pop: true
 
   endns:
