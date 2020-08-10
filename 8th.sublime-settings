@@ -3,6 +3,6 @@
 	"tab_size": 2,
 	"comment_column": 38,
 	"translate_tabs_to_spaces": true,
-	"auto_match_enabled": false,
+// 	"auto_match_enabled": false,
 	"auto_complete_use_index": false,
 }

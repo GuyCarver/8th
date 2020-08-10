@@ -39,18 +39,17 @@ contexts:
       scope: constant.language.8th
     - match: '(?<=^|\s)([-+]?(0x|0X|\$)[0-9a-fA-F]*)(?=\s)'
       scope: constant.numeric.hex.8th
-    - match: '(?<=^|\s)(%?[01]+)(?=\s)'
+    - match: '(?<=^|\s)(%[01]+)(?=\s)'
       scope: constant.numeric.binary.8th
-    - match: '(?<=^|\s)(&?[0-7]+)(?=\s)'
+    - match: '(?<=^|\s)(&[0-7]+)(?=\s)'
       scope: constant.numeric.octal.8th
-    - match: '(?<=^|\s)([-+]?[#]?[0-9]+)(?=\s)'
+    - match: '(?<=^|\s)([-+#]?[0-9]+)(?=\s)'
       scope: constant.numeric.decimal.8th
-    - match: '(?<=^|\s)([-+]?[0-9]*\.?[0-9]*[eE]?([-+]?[0-9]+))'
+    - match: '(?<=^|\s)([-+]?[0-9]*\.?[0-9]*[eE]?([-+]?[0-9]+))(?=\s)'
+      scope: constant.numeric.float.8th
+      #Not quite right 1.0e2-3i doesn't work.
+    - match: '(?<=^|\s)([-+]?[0-9]*\.?[0-9]*[eE]?([-+]?[0-9]+)i)(?=\s)'
       scope: constant.numeric.complex.8th
-      push:
-        - meta_scope: constant.numeric.complex.2nd.8th
-        - match: '([-+][0-9]*\.?[0-9]*[eE]?([-+]?[0-9]+i?))?(?=\s)'
-          pop: true
     - match: '(?<=^|\s)([-+]?F[0-9]*\.?[0-9]*[eE]?([-+]?[0-9]+))(?=\s)'
       scope: constant.numeric.bigfloat.8th
     - match: '(?<=^|\s)([-+]?B[0-9]+)(?=\s)'
@@ -306,6 +305,11 @@ contexts:
       scope: io.imapns.8th
       push: imapns
 
+    - match: '(?<=^|\s)(net:)(?=\S)'
+      comment: network namespace
+      scope: io.netns.8th
+      push: netns
+
     - match: '(?<=^|\s)(m:)(?=\S)'
       comment: map namespace
       scope: storage.mapns.8th
@@ -550,6 +554,14 @@ contexts:
 
   mapns:
     - include: mapwords
+    - include: endns
+
+  networds:
+    - match: '([!@]|\((?>bread-n|proxy|user-agent)\)|>url|accept|addrinfo>o|again\?|alloc-(?>and-read|buf)|bind|bread-n|browse|buffer[!@]|close(?>d\?)?|connect|delete|DGRAM|do-cb|ensure-buf|get(?>-header-chunk|-headers|addrinfo|peername)?|head|hex>n|http-read|ifaces\?|INET[46]|listen|map>url|net-socket|opts|parse-header|port-is-ssl\?|post(?>-path|/get)?|prep-socket|process-(chunked-)?buffer|PROTO_(?>TCP|UDP)|proxy!|put|read(?>-all|ln)?|recvfrom|refill|resolved\?|s>url|sendto|server|setsockopt|socket|split-(?>body|header|parse-header)|STREAM|tlshello|url>(?>map)?|user-agent|wait|write)(?=\s)'
+      scope: io.net.word.8th
+
+  netns:
+    - include: networds
     - include: endns
 
   numberwords:
