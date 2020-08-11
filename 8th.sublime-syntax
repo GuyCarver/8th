@@ -417,7 +417,7 @@ contexts:
 
   mapdef:
     - meta_scope: class.map.contents.8th
-    - include: linecomment
+    - include: main
     - match: '(?<=^|\s)(.*?):\s+(.*?)(?=\s)'
       captures:
         1: string.map.contents.key.8th
@@ -427,7 +427,7 @@ contexts:
 
   arraydef:
     - meta_scope: class.array.contents.8th
-    - include: linecomment
+    - include: main
     - match: '(?<=^|\s)(\])(?=\s)'
       pop: true
 
