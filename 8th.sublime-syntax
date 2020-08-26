@@ -189,7 +189,7 @@ contexts:
         - include: wordwords
         - include: endwith
 
-    - match: '{{globalinc}}'
+    - match: '(?<=^|\s){{globalinc}}'
       scope: include.globalns.word.8th
       push: includestring
 

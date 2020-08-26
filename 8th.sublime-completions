@@ -13,5 +13,6 @@
 		{ "trigger": "main", "contents": ": app:main \\ -- \n\t$0\n;\n"},
 		{ "trigger": "ifthen", "contents": "if\n\t$0\nthen\n"},
 		{ "trigger": "ifelse", "contents": "if\n\t$1\nelse\n\t$2\nthen\n"},
+		{ "trigger": "todo", "contents": "\\ TODO: $0"}
 	]
 }
