@@ -247,10 +247,10 @@ contexts:
       scope: keyword.compare.8th
 
     - match: '(?<=^)\s*(: +.*?)(?=\s)'
-      scope: green.function.8th
+      scope: entity.function.8th
 
     - match: '(?<=^|\s)(\()(?=\s)'
-      scope: green.lambda.8th
+      scope: entity.lambda.8th
       push:
         - meta_content_scope: lambda.body.8th
         - include: main
@@ -258,7 +258,7 @@ contexts:
           pop: true
 
     - match: '(?<=^|\s)(;|i;|\(:\)|func:)(?=\s)'
-      scope: green.function.8th
+      scope: entity.function.8th
 
     - match: '(?<=^|\s)(a:)(?=\S)'
       comment: array namespace
