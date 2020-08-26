@@ -1,0 +1,3 @@
+[
+	{ "keys": ["ctrl+k", "8"], "command": "set8th_syntax" }
+]
