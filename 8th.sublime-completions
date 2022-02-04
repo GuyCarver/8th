@@ -4,6 +4,8 @@
 	"completions":
 	[
 		{ "trigger": "header", "contents": "#! /usr/bin/env 8th\n"},
+		{ "trigger": "include", "contents": "f:include"},
+		{ "trigger": "constant", "contents": "constant "},
 		{ "trigger": "with:", "contents": "with:\n$0\n;with\n"},
 		{ "trigger": "repagain", "contents": "repeat\n\t$0\nagain\n"},
 		{ "trigger": "repuntil", "contents": "repeat\n\t$0\nuntil${1:!}\n"},
@@ -13,6 +15,7 @@
 		{ "trigger": "main", "contents": ": app:main \\ -- \n\t$0\n;\n"},
 		{ "trigger": "ifthen", "contents": "if\n\t$0\nthen\n"},
 		{ "trigger": "ifelse", "contents": "if\n\t$1\nelse\n\t$2\nthen\n"},
+		{ "trigger": "separate", "contents": "\\ --------------------------------------------------------"},
 		{ "trigger": "todo", "contents": "\\ TODO: $0"}
 	]
 }
